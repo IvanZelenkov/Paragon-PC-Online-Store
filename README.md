@@ -22,4 +22,5 @@
 </ul><h2>Setup</h2>
 </ul><ul>
 </ul><p><code>npm run start</code></p>
-<li>Runs the app in the development mode. Open http://localhost:3000 to view it in the browser.</li>
+<p><code>npm run start</code></p>
+<p>Runs the app in the development mode. Open http://localhost:3000 to view it in the browser.</li></p>
