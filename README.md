@@ -25,7 +25,6 @@
 </ul><ul>
 <li>npm run start</li>
 </ul><h2>Usage</h2>
-<hr><p>q</p><h5>Code Examples</h5><ul>
 <li>d</li>
 </ul><p><code>npm</code></p><h2>Project Status</h2>
 <hr><p>Completed</p><h2>Contact</h2>
