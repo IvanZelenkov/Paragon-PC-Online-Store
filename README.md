@@ -21,7 +21,6 @@
 <li>MongoDB</li>
 </ul><h2>Setup</h2>
 </ul><ul>
-<p>Run the app in the development mode.</p>
-<li><code>npm run start</code></li>
+<li>Run the app in the development mode. <code>npm run start</code></li>
 <p>
-<p>Open http://localhost:3000 to view it in the browser.</p>
+<li>Open http://localhost:3000 to view it in the browser.</li>
