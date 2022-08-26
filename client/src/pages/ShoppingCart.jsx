@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Add, Remove } from "@material-ui/icons";
+import { Add, Remove, DeleteOutline } from "@material-ui/icons";
 import Announcement from "../components/Announcement.jsx";
 import NavigationBar from "../components/NavigationBar.jsx";
 import Footer from "../components/Footer.jsx";
@@ -9,6 +9,7 @@ import { useCallback, useState, useEffect } from "react";
 import { useRouter } from 'next/router';
 import { publicRequest } from '../requestMethods';
 import { deleteProduct, emptyCart } from '../redux/cartSlice';
+import { Link } from "react-router-dom";
 
 const KEY = process.env.REACT_APP_STRIPE;
 
@@ -26,9 +27,6 @@ const Title = styled.h1`
 	font-weight: 600;
 `;
 
-/* Wrapper for the top texts Shopping Bag and Your Wishlist */
-const TopTexts = styled.div``;
-
 /* Sections contains 2 buttons and 2 info texts about user's cart */
 const Top = styled.div`
 	display: flex;
@@ -39,18 +37,24 @@ const Top = styled.div`
 
 /* CHECK OUT and CONTINUE SHOPPING buttons */
 const TopButton = styled.button`
+	width: 12vw;
+	word-wrap: break-word;
 	padding: 10px;
-	font-weight: 600;
-	border: ${(properties) => properties.type === "filled" && "none"};
-	background-color: ${(properties) => properties.type === "filled" ? "black" : "transparent"};
-	color: ${(properties) => properties.type === "filled" && "white"};
-	cursor: pointer;
+    font-size: 20px;
+    background-color: black;
+    cursor: pointer;
+    color: white;
+    border-radius: 99px;
+    border: 2px solid #E50914;
+    transition: 1.2s ease;
+    &:hover {
+        background-color: #E50914;
+    } 
 `;
 
 /* Shopping Bag and Your Wishlist texts */
 const TopText = styled.span`
-	text-decoration: underline;
-	cursor: pointer;
+	font-size: 20px;
 	margin: 0px 10px;
 `;
 
@@ -80,6 +84,7 @@ const ProductDetail = styled.div`
 /* Image of the product */
 const Image = styled.img`
 	width: 200px;
+	border-radius: 10px;
 `;
 
 /* Details includes description and cost */
@@ -104,9 +109,6 @@ const ProductColor = styled.div`
 	height: 20px;
 `;
 
-/* Product size field */
-const ProductSize = styled.span``;
-
 /* Product price field */
 const PriceDetail = styled.div`
 	display: flex;
@@ -125,7 +127,7 @@ const ProductAmountContainer = styled.div`
 
 /* The number of items the user decided to buy */
 const ProductAmount = styled.div`
-	font-size: 24px;
+	font-size: 30px;
 	margin: 5px;
 `;
 
@@ -174,10 +176,18 @@ const SummaryItemPrice = styled.span``;
 /* CHECKOUT NOW button */
 const Button = styled.button`
 	width: 100%;
+	word-wrap: break-word;
 	padding: 10px;
-	background-color: black;
-	color: white;
-	font-weight: 600;
+    font-size: 20px;
+    background-color: black;
+    cursor: pointer;
+    color: white;
+    border-radius: 99px;
+    border: 2px solid #E50914;
+    transition: 1.2s ease;
+    &:hover {
+        background-color: #E50914;
+    } 
 `;
 
 const ShoppingCart = () => {
@@ -202,13 +212,7 @@ const ShoppingCart = () => {
 	useEffect(() => {
 		const makeRequest = async () => {
 			try {
-				const res = await publicRequest.post(`/checkout/payment`, {
-					tokenId: stripeToken.id,
-					amount: 500
-				});
-				console.log(res);
 				dispatch(emptyCart());
-				router.replace({ pathname: '/success', query: { paymentData: JSON.stringify(res.data) } }, '/success');
 			} catch (error) {
 				console.log(error);
 			}		
@@ -216,48 +220,52 @@ const ShoppingCart = () => {
     	stripeToken && cart.total >= 1 && makeRequest();
   	}, [stripeToken, cart, router]);
 
+	let shippingCost = 9.90;
+	const user = useSelector((state) => state.user.currentUser);
+
 	return (
 		<Container>
-			<Announcement/>
+			{!user && (
+				<>
+					<Announcement/>
+				</>
+			)}
 			<NavigationBar/>
 			<Wrapper>
 				<Title>YOUR BAG</Title>
 				<Top>
-					<TopButton>CONTINUE SHOPPING</TopButton>
-					<TopTexts>
-						<TopText>Shopping Bag({cart.products.length})</TopText>
-						<TopText>Your Wishlist (0)</TopText>
-					</TopTexts>
-					<TopButton type="filled">CHECKOUT NOW</TopButton>
+					<Link to="/">
+						<TopButton>CONTINUE SHOPPING</TopButton>
+					</Link>
+					<TopText>Shopping Bag({cart.products.length})</TopText>
+					<TopButton onClick={() => dispatch(emptyCart())} type="filled">EMPTY CART</TopButton>
 				</Top>
 				<Bottom>
 					<Info>
 						{cart.products.map((product) => (
 							<Product>
-							<ProductDetail>
-								<Image src={product.img}/>
-								<Details>
-									<ProductName>
-										<b>Product:</b> {product.title}
-									</ProductName>
-									<ProductId>
-										<b>ID:</b> {product._id}
-									</ProductId>
-									<ProductColor color={product.color}/>
-									<ProductSize>
-										<b>Resolution:</b> {product.size}
-									</ProductSize>
-										</Details>
-							</ProductDetail>
-							<PriceDetail>
-								<ProductAmountContainer>
-								<Add/>
-								<ProductAmount>{product.quantity}</ProductAmount>
-								<Remove/>
-								</ProductAmountContainer>
-								<ProductPrice>${product.price * product.quantity}</ProductPrice>
-							</PriceDetail>
-						</Product>
+								<ProductDetail>
+									<Image src={product.img}/>
+									<Details>
+										<ProductName>
+											<b>Product:</b> {product.title}
+										</ProductName>
+										<ProductId>
+											<b>ID:</b> {product._id}
+										</ProductId>
+										<ProductColor color={product.color}/>
+									</Details>
+								</ProductDetail>
+								<PriceDetail>
+									<ProductAmountContainer>
+									<Add/>
+									<ProductAmount>{product.quantity}</ProductAmount>
+									<Remove/>
+									</ProductAmountContainer>
+									<ProductPrice>$ {product.price * product.quantity}</ProductPrice>
+									<DeleteOutline onClick={() => handleDelete(product)} style={{fontSize: '30px', color: 'red', marginTop: '1.5rem', cursor: 'pointer'}}/>
+								</PriceDetail>
+							</Product>
 						))}
 						<Delimiter/>
 					</Info>
@@ -265,31 +273,50 @@ const ShoppingCart = () => {
 						<SummaryTitle>ORDER SUMMARY</SummaryTitle>
 						<SummaryItem>
 							<SummaryItemText>Subtotal</SummaryItemText>
-							<SummaryItemPrice>${cart.total}</SummaryItemPrice>
+							<SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
 						</SummaryItem>
-						<SummaryItem>
-							<SummaryItemText>Estimated Shipping</SummaryItemText>
-							<SummaryItemPrice>$ 9.90</SummaryItemPrice>
-						</SummaryItem>
-						<SummaryItem>
-							<SummaryItemText>Shipping Discount</SummaryItemText>
-							<SummaryItemPrice>$ -9.90</SummaryItemPrice>
-						</SummaryItem>
-						<SummaryItem type="total">
-							<SummaryItemText>Total</SummaryItemText>
-							<SummaryItemPrice>${cart.total}</SummaryItemPrice>
-						</SummaryItem>
-						<StripeCheckout
-							name="Paragon PC"
-							image="https://c.tenor.com/j60YQFhyo2wAAAAM/snap-on-payment-due.gif"
-							billingAddress
-							shippingAddress
-							description={`Your total is $${cart.total}`}
-							amount={cart.total * 100}
-							token={onToken}
-							stripeKey={KEY}
-						></StripeCheckout>
-						<Button>CHECKOUT NOW</Button>
+						{!user && (
+							<>
+								<SummaryItem>
+									<SummaryItemText>Estimated Shipping</SummaryItemText>
+									<SummaryItemPrice>$ {shippingCost}</SummaryItemPrice>
+								</SummaryItem>
+								<SummaryItem>
+									<SummaryItemText>Shipping Discount</SummaryItemText>
+									<SummaryItemPrice>$ 0</SummaryItemPrice>
+								</SummaryItem>
+								<SummaryItem type="total">
+									<SummaryItemText>Total</SummaryItemText>
+									<SummaryItemPrice>$ {cart.total === 0 ? 0 : cart.total + shippingCost}</SummaryItemPrice>
+								</SummaryItem>
+								<StripeCheckout name="Paragon PC"
+									image="https://s5o.ru/storage/simple/cyber/edt/41/39/8b/c0/cyberee6e91e0c8d.jpg"
+									billingAddress shippingAddress
+									description={`Your total is $${cart.total + shippingCost}`}
+									amount={(cart.total + shippingCost) * 100} token={onToken} stripeKey={KEY}>
+									<Button>CHECKOUT NOW</Button>
+								</StripeCheckout>
+							</>
+						)}
+						{user && (
+							<>
+								<SummaryItem>
+									<SummaryItemText>Shipping Discount</SummaryItemText>
+									<SummaryItemPrice>$ -9.90</SummaryItemPrice>
+								</SummaryItem>
+								<SummaryItem type="total">
+									<SummaryItemText>Total</SummaryItemText>
+									<SummaryItemPrice>$ {cart.total === 0 ? 0 : cart.total}</SummaryItemPrice>
+								</SummaryItem>
+								<StripeCheckout name="Paragon PC"
+									image="https://s5o.ru/storage/simple/cyber/edt/41/39/8b/c0/cyberee6e91e0c8d.jpg"
+									billingAddress shippingAddress
+									description={`Your total is $${cart.total}`}
+									amount={cart.total * 100} token={onToken} stripeKey={KEY}>
+									<Button>CHECKOUT NOW</Button>
+								</StripeCheckout>
+							</>
+						)}
 					</Summary>
 				</Bottom>
 			</Wrapper>

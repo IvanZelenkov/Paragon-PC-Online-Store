@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import background from "../images/bg-login-register.jpg";
+import { useCallback, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../redux/apiCalls";
-import { useState, useCallback } from "react";
-import { useRouter } from 'next/router';
+import { login } from "../redux/apiCalls.js";
+import queryString from "query-string";
+import { useParams, useLocation, useHistory, useRouteMatch } from "react-router-dom";
 
 /* Main DOM element */
 const Container = styled.div`
@@ -61,7 +62,7 @@ const Button = styled.button`
 	border: 2px solid black;
 	font-size: 20px;
 	color: black;
-	background-color: #EC2D2D;
+	background-color: #E50914;
 	cursor: pointer;
 `;
 
@@ -80,6 +81,7 @@ const Error = styled.span`
 const Login = () => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+
 	const dispatch = useDispatch();
 	const { isFetching, error, currentUser } = useSelector((state) => state.user);
 	const router = useRouter();
@@ -88,23 +90,54 @@ const Login = () => {
 		e.preventDefault();
 		login(dispatch, { username, password });
 	}, [username, password]);
-	
+
 	if (currentUser) {
 		router.replace('/');
 		return null;
 	}
+
+	// Hook
+	function useRouter() {
+		const params = useParams();
+		const location = useLocation();
+		const history = useHistory();
+		const match = useRouteMatch();
+	
+		// Return our custom router object
+		// Memoize so that a new object is only returned if something changes
+		return useMemo(() => {
+			return {
+				// For convenience add push(), replace(), pathname at top level
+				push: history.push,
+				replace: history.replace,
+				pathname: location.pathname,
+				// Merge params and parsed query string into single "query" object
+				// so that they can be used interchangeably.
+				// Example: /:topic?sort=popular -> { topic: "react", sort: "popular" }
+				query: {
+					...queryString.parse(location.search), // Convert string to object
+					...params
+				},
+				// Include match, location, history objects so we have
+				// access to extra React Router functionality if needed.
+				match,
+				location,
+				history
+			};
+		}, [params, match, location, history]);
+  	}
 
 	return (
 		<Container>
 			<Wrapper>
 				<Title>SIGN IN</Title>
 				<Form>
-					<Input type="text" placeholder="username" onChange={(e) => setUsername(e.target.value)}/>
-					<Input type="password" placeholder="password" onChange={(e) => setPassword(e.target.value)}/>
+					<Input type="text" placeholder="username" value={username} onChange={(e) => setUsername(e.target.value)}/>
+					<Input type="password" placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
 					<Button onClick={handleLogin} disabled={isFetching}>LOGIN</Button>
 					{error && <Error>Something went wrong...</Error>}
-					<Link>Forgot your password?</Link>
-					<Link>Not a member? Join us</Link>
+					<Link href="">Forgot your password?</Link>
+					<Link href="/register">Not a member? Join us</Link>
 				</Form>
 			</Wrapper>
 		</Container>

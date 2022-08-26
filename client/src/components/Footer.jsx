@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { YouTube, 
          Facebook, 
          Instagram,  
@@ -7,12 +7,30 @@ import { YouTube,
          Phone, 
          Room } from "@material-ui/icons";
 import paymentMethods from "../images/payment-methods.png";
+import background from "../images/dragon.jpeg";
+
+const NavBarKeyFrame = keyframes`
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+`;
 
 /* Main DOM element */
 const Container = styled.div`
     display: flex;
-    background-color: #EC2D2D;
-    color: black;
+    color: white;
+    background: url(${background}) no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+    heigth: 100%;
 `;
 
 /* Left side which contains description and social media */
@@ -21,6 +39,11 @@ const Left = styled.div`
     flex-direction: column;
     flex: 1;
     padding: 20px;
+    background: linear-gradient(90deg, #E50914, gold, #E50914, gold) fixed;
+	animation: ${NavBarKeyFrame} 5s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+	background-size: 400% 400%;
 `;
 
 /* Name of the company */
@@ -37,7 +60,7 @@ const SocialMediaContainer = styled.div`
 `;
 
 /* Social media icons */
-const SocialMediaIcon = styled.div`
+const SocialMediaIcon = styled.a`
     display: flex;
     align-items: center;
     justify-content: center;
@@ -53,6 +76,11 @@ const SocialMediaIcon = styled.div`
 const Center = styled.div`
     flex: 1;
     padding: 25px;
+    background: linear-gradient(90deg, #E50914, gold, #E50914, gold) fixed;
+	animation: ${NavBarKeyFrame} 5s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+	background-size: 400% 400%;
 `;
 
 /* Useful Links title */
@@ -70,15 +98,22 @@ const List = styled.ul`
 `;
 
 /* List item styling */
-const ListItem = styled.li`
+const ListItem = styled.a`
     width: 50%;
     margin-bottom: 15px;
+    color: white;
+    text-decoration: none;
 `;
 
 /* Right part contains address, phone number, email of the company */
 const Right = styled.div`
     flex: 1;
     padding: 25px;
+    background: linear-gradient(90deg, #E50914, gold, #E50914, gold) fixed;
+	animation: ${NavBarKeyFrame} 5s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+	background-size: 400% 400%;
 `;
 
 /* Contact item styling */
@@ -105,23 +140,22 @@ const Footer = () => {
                     as Adobe Systems, Wargaming, Oracle Corporation, UbiSoft, Electronic Arts, and Bethesda.
                 </Description>
                 <SocialMediaContainer>
-                    <SocialMediaIcon color="E60023"><YouTube/></SocialMediaIcon>
-                    <SocialMediaIcon color="3B5999"><Facebook/></SocialMediaIcon>
-                    <SocialMediaIcon color="E4405F"><Instagram/></SocialMediaIcon>
-                    <SocialMediaIcon color="55ACEE"><Telegram/></SocialMediaIcon>
+                    <SocialMediaIcon href="https://www.youtube.com/c/hyperpc" color="E60023"><YouTube/></SocialMediaIcon>
+                    <SocialMediaIcon href="https://www.facebook.com/hyperpc/" color="3B5999"><Facebook/></SocialMediaIcon>
+                    <SocialMediaIcon href="https://www.instagram.com/hyperpc/" color="E4405F"><Instagram/></SocialMediaIcon>
+                    <SocialMediaIcon href="https://t.me/HYPERPC" color="55ACEE"><Telegram/></SocialMediaIcon>
                 </SocialMediaContainer>
             </Left>
             <Center>
                 <Title>Useful Links</Title>
                 <List>
-                    <ListItem>Home</ListItem>
-                    <ListItem>Cart</ListItem>
-                    <ListItem>Desktops</ListItem>
-                    <ListItem>Laptops</ListItem>
-                    <ListItem>Accessories</ListItem>
+                    <ListItem href="/">Home</ListItem>
+                    <ListItem href="/cart">Cart</ListItem>
+                    <ListItem href="/products/PCs">PCs and Monitors</ListItem>
+                    <ListItem href="/products/Laptops">Laptops</ListItem>
+                    <ListItem href="/products/Accessories">Accessories</ListItem>
                     <ListItem>My Account</ListItem>
                     <ListItem>Order Tracking</ListItem>
-                    <ListItem>Wishlist</ListItem>
                     <ListItem>Wishlist</ListItem>
                     <ListItem>Terms</ListItem>
                 </List>

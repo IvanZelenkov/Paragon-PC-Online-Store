@@ -1,57 +1,54 @@
 const router = require('express').Router();
 const User = require("../models/User.js");
-const CryptoJS = require('crypto-js');
 const JWT = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
 
 // REGISTER
-router.post("/register", async (request, response) => {
-    const newUser = new User({
-        username: request.body.username,
-        email: request.body.email,
-        password: CryptoJS.AES.encrypt(
-            request.body.password, 
-            process.env.PASSWORD_SECRET
-        ).toString()
-    });
-
+router.post('/register', async (request, res) => {
     try {
+        const hashedPassword = await bcrypt.hash(request.body.password, 10);
+
+        const newUser = new User({
+            username: request.body.username,
+            email: request.body.email,
+            password: hashedPassword,
+        });
+
         const savedUser = await newUser.save();
-        response.status(201).json(savedUser);
+            res.status(201).json(savedUser);
     } catch (error) {
-        response.status(500).json(error);
+            console.log(error);
+            res.status(500).json(error);
     }
 });
 
 // LOGIN
-router.post("/login", async (request, response) => {
+router.post('/login', async (request, res) => {
     try {
         const user = await User.findOne({ username: request.body.username });
-        // assertion
-        !user && response.status(401).json("Wrong credentials!");
-
-        const decryptedPassword = CryptoJS.AES.decrypt(
-            user.password, 
-            process.env.PASSWORD_SECRET
-        ).toString(CryptoJS.enc.Utf8);
 
         // assertion
-        decryptedPassword !== request.body.password && response.status(401).json("Wrong credentials!");
+        !user && res.status(400).json('wrong credentials');
 
-        const accessToken = JWT.sign(
-            {
-                id: user.id,
-                isAdmin: user.isAdmin
-            }, 
-            4994741,
-            { expiresIn: "3d" }
+        const isPasswordMatched = await bcrypt.compare(
+            request.body.password,
+            user.password
         );
 
-        const { password, ...others } = user._doc;
+        // assertion
+        !isPasswordMatched && res.status(400).json('wrong credentials');
 
-        // MongoDB stores user data in the _doc folder, therefore we don't want to show password
-        response.status(200).json({ ...others, accessToken });
+        const token = JWT.sign(
+            { id: user._id, isAdmin: user.isAdmin },
+            process.env.JWT_SECRET,
+            { expiresIn: '3d' }
+        );
+
+        const { password, ...rest } = user._doc;
+
+        res.status(200).json({ ...rest, token });
     } catch (error) {
-        response.status(500).json(error);
+        res.status(500).json(error);
     }
 });
 

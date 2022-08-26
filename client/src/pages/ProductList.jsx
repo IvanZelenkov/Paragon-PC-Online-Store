@@ -1,17 +1,22 @@
 import styled from "styled-components";
 import Announcement from "../components/Announcement.jsx";
 import NavigationBar from "../components/NavigationBar.jsx";
-import PopularProducts from "../components/PopularProducts.jsx";
+import Products from "../components/Products.jsx";
 import Newsletter from "../components/Newsletter.jsx";
 import Footer from "../components/Footer.jsx";
-import { useLocation } from "react-router";
-import { useState } from "react"
+import { useCallback, useState, useMemo } from 'react';
+import queryString from "query-string";
+import { useParams, useLocation, useHistory, useRouteMatch } from "react-router-dom";
+import { useSelector }  from "react-redux";
 
 /* Main DOM element */
 const Container = styled.div``;
 
 /* Category name */
 const CategoryName = styled.h1`
+	display: flex;
+	align-items: center;
+	justify-content: center;
     margin: 20px;
 `;
 
@@ -43,40 +48,74 @@ const FilterContainer = styled.div`
 const Option = styled.option``;
 
 const ProductList = () => {
-	const location = useLocation();
-	const category = location.pathname.split("/")[2];
+	const router = useRouter();
+	const { category } = router.query;
+
 	const [filters, setFilters] = useState({});
 	const [sort, setSort] = useState("newest");
 
-	const handleFilters = (e) => {
-		const value = e.target.value;
-		setFilters({...filters, [e.target.name]: value});
-	};
+	const handleFilter = useCallback((e) => {
+    	const value = e.target.value;
+    	setFilters((prev) => ({
+      		...prev,
+      		[e.target.name]: value,
+    	}));
+  	}, []);
+
+	// Hook
+	function useRouter() {
+		const params = useParams();
+		const location = useLocation();
+		const history = useHistory();
+		const match = useRouteMatch();
+	
+		// Return our custom router object
+		// Memoize so that a new object is only returned if something changes
+		return useMemo(() => {
+			return {
+				// For convenience add push(), replace(), pathname at top level
+				push: history.push,
+				replace: history.replace,
+				pathname: location.pathname,
+				// Merge params and parsed query string into single "query" object
+				// so that they can be used interchangeably.
+				// Example: /:topic?sort=popular -> { topic: "react", sort: "popular" }
+				query: {
+					...queryString.parse(location.search), // Convert string to object
+					...params
+				},
+				// Include match, location, history objects so we have
+				// access to extra React Router functionality if needed.
+				match,
+				location,
+				history
+			};
+		}, [params, match, location, history]);
+  	}
+
+	const user = useSelector((state) => state.user.currentUser);
 	
     return (
 		<Container>
-			<Announcement/>
+			{!user && (
+				<>
+					<Announcement/>
+				</>
+			)}
 			<NavigationBar/>
 			<CategoryName>{category}</CategoryName>
 			<FilterContainer>
 				<Filter>
 					<FilterText>Filter Products:</FilterText>
-					<Select name="color" onChange={handleFilters}>
-						<Option disabled>Color</Option>
-						<Option>White</Option>
-						<Option>Black</Option>
-						<Option>Red</Option>
-						<Option>Blue</Option>
-						<Option>Yellow</Option>
-						<Option>Green</Option>
-					</Select>
-					<Select name="company" onChange={handleFilters}>
-						<Option disabled>Company</Option>
+					<Select name="company" onChange={handleFilter}>
+						<Option label="All"></Option>
 						<Option>Asus</Option>
 						<Option>Razer</Option>
-						<Option>Paragon PC</Option>
-						<Option>Steelseries</Option>
+						<Option>MSI</Option>
+						<Option>Skytech</Option>
+						<Option>SteelSeries</Option>
 						<Option>AOC</Option>
+						<Option>CLX</Option>
 					</Select>
 				</Filter>
 				<Filter>
@@ -88,7 +127,7 @@ const ProductList = () => {
 					</Select>
 				</Filter>
 			</FilterContainer>
-			<PopularProducts category={category} filters={filters} sort={sort}/>
+			<Products category={category} filters={filters} sort={sort}/>
 			<Newsletter/>
 			<Footer/>
 		</Container>

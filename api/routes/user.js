@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const CryptoJS = require('crypto-js');
 const User = require('../models/User.js');
 const { verifyTokenAndAuthorization, verifyTokenAndAdmin} = require('./tokenVerification.js');
 
@@ -7,7 +8,7 @@ router.put('/:id', verifyTokenAndAuthorization, async (request, response) => {
     if (request.body.password) {
         request.body.password =  CryptoJS.AES.encrypt(
             request.body.password, 
-            4994741
+            process.env.PASSWORD_SECRET
         ).toString();
     }
 

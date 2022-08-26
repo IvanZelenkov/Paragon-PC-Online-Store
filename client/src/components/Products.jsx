@@ -1,25 +1,29 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import PopularProduct from "./PopularProduct.jsx";
+import Product from "./Product.jsx";
 import axios from "axios";
+import background from "../images/dragon.jpeg";
 
 /* Main DOM element */
 const Container = styled.div`
     display: flex; 
-    flex-wrap: wrap;
-    justify-content: space-between;   
-    padding: 20px;
-    background-color: black;
+    flex-wrap: wrap; 
+    padding: 40px;
+	background: url(${background}) no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 `;
 
-const PopularProducts = ({ category, filters, sort }) => {
+const Products = ({ category, filters, sort }) => {
 	const [products, setProducts] = useState([]);
 	const [filteredProducts, setFilteredProducts] = useState([]);
 
 	useEffect(() => {
 		const getProducts = async () => {
 			try {
-				const response = await axios.get(category ? `http://localhost:3000/api/products?category=${category}` : "http://localhost:3000/api/products");
+				const response = await axios.get(category ? `http://localhost:3001/api/products?category=${category}` : "http://localhost:3001/api/products");
 				setProducts(response.data);
 			} catch (error) {}
 		};
@@ -38,10 +42,10 @@ const PopularProducts = ({ category, filters, sort }) => {
 
 	useEffect(() => {
 		if (sort === "newest") {
-			setFilteredProducts((previous) => [...previous].sort((a, b) => a.createdAt - b.createdAt));
+			setFilteredProducts((previous) => [...previous].sort((a, b) => a.createdAt.localeCompare(b.createdAt)));
 		} else if (sort === "asc") {
 			setFilteredProducts((previous) => [...previous].sort((a, b) => a.price - b.price));
-		} else {
+		} else if (sort === "desc") {
 			setFilteredProducts((previous) => [...previous].sort((a, b) => b.price - a.price));
 		}
 	}, [sort]);
@@ -49,10 +53,10 @@ const PopularProducts = ({ category, filters, sort }) => {
 	return (
 		<Container>
 			{category ? 
-				filteredProducts.map((item) => <PopularProduct item={item} key={item.id}/>) : 
-				products.slice(0, 8).map((item) => <PopularProduct item={item} key={item.id}/>)}
+				filteredProducts.map((item) => <Product item={item} key={item.id}/>) : 
+				products.slice(0, 8).map((item) => <Product item={item} key={item.id}/>)}
 		</Container>
 	);
 };
 
-export default PopularProducts;
+export default Products;

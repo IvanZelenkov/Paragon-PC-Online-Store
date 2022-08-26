@@ -1,7 +1,19 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { ArrowBackIosRounded, ArrowForwardIosRounded } from '@material-ui/icons';
 import { useState } from 'react';
 import { sliderItems } from "../data.js";
+
+const NavBarKeyFrame = keyframes`
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+`;
 
 /* Main DOM element */
 const Container = styled.div`
@@ -19,18 +31,16 @@ const Arrow = styled.div`
     align-items: center;
     justify-content: center;
     position: absolute;
-    width: 50px;
-    height: 50px;
     top: 0;
     bottom: 0;
-    margin: auto;
-    left: ${properties => properties.direction === "left" && "10px"};
-    right: ${properties => properties.direction === "right" && "10px"};
+    left: ${properties => properties.direction === "left" && "50px"};
+    right: ${properties => properties.direction === "right" && "50px"};
     cursor: pointer;
     z-index: 2;
     transition: all 0.5s ease;
+    transform: scale(1.5);
     &:hover {
-        transform: scale(2);   
+        transform: scale(3);   
     }
 `;
 
@@ -42,7 +52,7 @@ and the parent set to either position:absolute; or position:relative;. */
 const Wrapper = styled.div`
     display: flex;
     height: 100%;
-    color: #EC2D2D;
+    color: #E50914;
     transition: all 1.5s ease;
     transform: translateX(${(properties) => properties.slideIndex * -100}vw);
 `;
@@ -77,6 +87,12 @@ const InfoContainer = styled.div`
 const Title = styled.h1`
     font-size: 70px;
     width: 30vw;
+    background: linear-gradient(90deg, #E50914, gold, #E50914, gold) fixed;
+	animation: ${NavBarKeyFrame} 5s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+	background-size: 400% 400%;
+    letter-spacing: 3px;
 `;
 
 /* Description of the slide */
@@ -86,17 +102,27 @@ const Description = styled.p`
     margin: 50px 0px;
     letter-spacing: 3px;
     width: 30vw;
+    background: linear-gradient(90deg, #E50914, gold, #E50914, gold) fixed;
+	animation: ${NavBarKeyFrame} 5s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+	background-size: 400% 400%;
+    letter-spacing: 3px;
 `;
 
 /* Button of the slide */
 const Button = styled.button`
     padding: 10px;
     font-size: 20px;
-    background-color: #EC2D2D;
+    background-color: rgba(0, 0, 0, 0.5);
     cursor: pointer;
-    color: black;
-    border-radius: 10px;
-    border: 2px solid black;
+    color: white;
+    border-radius: 99px;
+    border: 2px solid #E50914;
+    transition: 1.2s ease;
+    &:hover {
+        background-color : #E50914;
+    } 
 `;
 
 const Slider = () => {
@@ -117,7 +143,7 @@ const Slider = () => {
 
     return (
         <Container>
-            <Arrow direction="left" style={{color: "#EC2D2D"}} onClick={() => handleClick("left")}>
+            <Arrow direction="left" style={{color: "#E50914"}} onClick={() => handleClick("left")}>
                 <ArrowBackIosRounded/>
             </Arrow>
             <Wrapper slideIndex={slideIndex}>
@@ -129,12 +155,12 @@ const Slider = () => {
                         <InfoContainer>
                             <Title>{item.title}</Title>
                             <Description>{item.description}</Description>
-                            <Button>Learn more</Button>
+                            <Button>LEARN MORE</Button>
                         </InfoContainer>
                     </Slide>
                 ))}
             </Wrapper>
-            <Arrow direction="right" style={{color: "#EC2D2D"}} onClick={() => handleClick("right")}>
+            <Arrow direction="right" style={{color: "#E50914"}} onClick={() => handleClick("right")}>
                 <ArrowForwardIosRounded/>
             </Arrow>
         </Container>

@@ -13,7 +13,7 @@ require('dotenv').config();
 const app = express();
 
 // use 'then', if connection is successful, output message, otherwise error
-mongoose.connect("mongodb+srv://ivanzelenkov:Pakahontas_777@paragonpcdata.nrusd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+mongoose.connect(process.env.MONGO_URI)
         .then(() => console.log('DB Connection Successfull!'))
         .catch((error) => console.log(error));
 

@@ -14,7 +14,6 @@ const Info = styled.div`
     width: 100%;
     height: 100%;
     opacity: 0;
-    background-color: rgba(0, 0, 0, 0.3);
     transition: all 0.5s ease;
     cursor: pointer;
 `;
@@ -25,13 +24,16 @@ const Container = styled.div`
     align-items: center;
     justify-content: center;
     position: relative;
-    height: 350px;
+    max-height: 23vh;
     flex: 1;
     margin: 10px;
-    min-width: 280px;
-    background-color: black;
+    max-width: 13vw;
+    transition: all 1s ease;
     &:hover ${Info} {
         opacity: 1;
+    }
+    &:hover {
+        transform: scale(1.1);
     }
 `;
 
@@ -39,7 +41,7 @@ const Container = styled.div`
 const Image = styled.img`
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    // object-fit: cover;
     border-radius: 10px;
 `;
 
@@ -55,30 +57,30 @@ const Icon = styled.div`
     margin: 10px;
     transition: all 0.5s ease;
     &:hover {
-        background-color: #EC2D2D;
+        background-color: #E50914;
         transform: scale(1.3);
     }
 `;
 
-const PopularProduct = ({ item }) => {
-  return (
-    <Container>
-        <Image src={item.img}/>
-        <Info>
-            <Icon>
-                <ShoppingCartOutlined/>
-            </Icon>
-            <Icon>
-                <Link to={`/product/${item._id}`}>
-                    <SearchOutlined/>
-                </Link>
-            </Icon>
-            <Icon>
-                <FavoriteBorderOutlined/>
-            </Icon>
-        </Info>
-    </Container>
-  );
+const Product = ({ item }) => {
+    return (
+        <Container>
+            <Image src={item.img}/>
+            <Info>
+                <Icon>
+                    <ShoppingCartOutlined/>
+                </Icon>
+                <Icon>
+                    <Link to={`/product/${item._id}`} style={{ color: 'black'}}>
+                        <SearchOutlined/>
+                    </Link>
+                </Icon>
+                <Icon>
+                    <FavoriteBorderOutlined/>
+                </Icon>
+            </Info>  
+        </Container>
+    );
 };
 
-export default PopularProduct;
+export default Product;

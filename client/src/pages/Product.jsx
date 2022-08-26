@@ -4,11 +4,12 @@ import Announcement from "../components/Announcement.jsx";
 import NavigationBar from "../components/NavigationBar.jsx";
 import Newsletter from "../components/Newsletter.jsx";
 import Footer from "../components/Footer.jsx";
-import { useLocation } from "react-router-dom";
 import { addProduct } from "../redux/cartSlice.js";
-import { useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { publicRequest } from "../requestMethods.js";
+import { useCallback, useEffect, useState, useMemo } from 'react';
+import queryString from "query-string";
+import { useParams, useLocation, useHistory, useRouteMatch } from "react-router-dom";
 
 /* Main DOM element */
 const Container = styled.div``;
@@ -27,9 +28,10 @@ const ImgContainer = styled.div`
 /* Product image */
 const Image = styled.img`
 	height: 60vh; 
-	width: 30vw;
+	width: 34vw;
 	margin-left: 100px; 
 	// object-fit: cover;
+	border-radius: 10px;
 `;
 
 /* The information container contains all the necessary data about the product */
@@ -46,6 +48,8 @@ const Title = styled.h1`
 
 /* Product description */
 const Description = styled.p`
+	font-size: 20px;
+	line-height: 30px;
 	margin: 20px 0px;
 `;
 
@@ -60,7 +64,7 @@ const FilterContainer = styled.div`
 	display: flex;
 	justify-content: space-between;
 	width: 50%;
-	margin: 30px 0px;
+	margin: 60px 0px;
 `;
 
 /* Filter area of a specific type */
@@ -73,16 +77,6 @@ const Filter = styled.div`
 const FilterTitle = styled.span`
 	font-size: 20px;
 	font-weight: 600;
-`;
-
-/* Filter color styling */
-const FilterColor = styled.div`
-	width: 20px;
-	height: 20px;
-	margin: 0px 5px;
-	border-radius: 50%;
-	background-color: ${(properties) => properties.color};
-	cursor: pointer;
 `;
 
 /* Filter GPU styling */
@@ -118,58 +112,100 @@ const Amount = styled.span`
 	width: 30px;
 	height: 30px;
 	border-radius: 10px;
-	border: 1px solid #EC2D2D;
+	border: 1px solid #E50914;
 `;
 
 /* ADD TO CART button */
 const Button = styled.button`
-	padding: 15px;
+	margin-top: 60px;
+	padding: 10px;
 	font-size: 20px;
-	border-radius: 10px;
-	border: 2px solid black;
-	background-color: #EC2D2D;
-	color: black;
-	&:hover{
-		color: white;
-		background-color: black;
-	}
+	background-color: black;
 	cursor: pointer;
+	color: white;
+	border-radius: 99px;
+	border: 2px solid #E50914;
+	transition: 1.2s ease;
+	&:hover {
+		background-color : #E50914;
+	} 
 `;
 
 const Product = () => {
-	const location = useLocation();
-	const id = location.pathname.split("/")[2];
+	const router = useRouter();
+	const { id } = router.query;
+	const dispatch = useDispatch();
+
 	const [product, setProduct] = useState({});
 	const [quantity, setQuantity] = useState(1);
-	const [color, setColor] = useState("");
-	const [size, setSize] = useState("");
-	const dispatch = useDispatch();
+	const [options, setOptions] = useState('');
+	const [showMsg, setShowMsg] = useState(false);
 
 	useEffect(() => {
 		const getProduct = async () => {
 			try {
-				const res = await publicRequest.get("/products/find/" + id);
-				setProduct(res.data);
-			} catch {}
+				const response = await publicRequest.get(`/products/find/${id}`);
+				setProduct(response.data);
+			} catch (error) {}
 		};
+
 		getProduct();
 	}, [id]);
 
-	const handleQuantity = (type) => {
-		if (type === "dec") {
-			quantity > 1 && setQuantity(quantity - 1);
+	const handleQuantity = useCallback((type) => {
+		if (type === 'dec') {
+			setQuantity((prev) => {
+				return prev > 1 ? prev - 1 : 1;
+			});
 		} else {
-			setQuantity(quantity + 1);
+			setQuantity((prev) => prev + 1);
 		}
-	};
+	}, []);
+	
+	const handleSubmit = useCallback(() => {
+		dispatch(addProduct({ ...product, quantity, options, showMsg: setShowMsg }));
+	}, [product, quantity, options]);
 
-	const handleClick = () => {
-		dispatch(addProduct({ ...product, quantity, color, size }))
-	};
+	// Hook
+	function useRouter() {
+		const params = useParams();
+		const location = useLocation();
+		const history = useHistory();
+		const match = useRouteMatch();
+	
+		// Return our custom router object
+		// Memoize so that a new object is only returned if something changes
+		return useMemo(() => {
+			return {
+				// For convenience add push(), replace(), pathname at top level
+				push: history.push,
+				replace: history.replace,
+				pathname: location.pathname,
+				// Merge params and parsed query string into single "query" object
+				// so that they can be used interchangeably.
+				// Example: /:topic?sort=popular -> { topic: "react", sort: "popular" }
+				query: {
+					...queryString.parse(location.search), // Convert string to object
+					...params
+				},
+				// Include match, location, history objects so we have
+				// access to extra React Router functionality if needed.
+				match,
+				location,
+				history
+			};
+		}, [params, match, location, history]);
+  	}
+	
+	const user = useSelector((state) => state.user.currentUser);
 
 	return (
 		<Container>
-			<Announcement/>
+			{!user && (
+				<>
+					<Announcement/>
+				</>
+			)}
 			<NavigationBar/>
 			<Wrapper>
 				<ImgContainer>
@@ -178,24 +214,15 @@ const Product = () => {
 				<InfoContainer>
 					<Title>{product.title}</Title>
 					<Description>{product.desc}</Description>
-					<br/>
-					<Description>
-						Play at maximum settings up to 2K resolution.
-					</Description>
-					<Price>${product.price}</Price>
+					<br/><br/><br/>
+					<Price>$ {product.price}</Price>
 					<FilterContainer>
 						<Filter>
-							<FilterTitle>Color</FilterTitle>
-							{product.color?.map((c) => (
-								<FilterColor color={c} key={c} onClick={() => setColor(c)}/>
-							))}
-						</Filter>
-						<Filter>
-							<FilterTitle>GPU</FilterTitle>
-							<FilterGPU onChange={(e) => setSize(e.target.value)}> 
-							{product.size?.map((s) => (
-								<FilterGPUoption key={s}>{s}</FilterGPUoption>
-							))}
+							<FilterTitle>{product.optionName}</FilterTitle>
+							<FilterGPU onChange={(e) => setOptions(e.target.value)}> 
+								{product.options?.map((s) => (
+									<FilterGPUoption key={s}>{s}</FilterGPUoption>
+								))}
 							</FilterGPU>
 						</Filter>
 					</FilterContainer>
@@ -205,8 +232,8 @@ const Product = () => {
 							<Amount>{quantity}</Amount>
 							<Add onClick={() => handleQuantity("inc")}/>
 						</AmountContainer>
-						<Button onClick={handleClick}>ADD TO CART</Button>
 					</AddContainer>
+					<Button onClick={handleSubmit}>ADD TO CART</Button>
 				</InfoContainer>
 			</Wrapper>
 			<Newsletter/>

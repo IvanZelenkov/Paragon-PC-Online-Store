@@ -5,15 +5,15 @@ const tokenVerification = (request, response, next) => {
 
     if (authenticationHeader) {
         const token = authenticationHeader.split(" ")[1];
-        JWT.verify(token, 4994741, (error, user) => {
+        JWT.verify(token, process.env.JWT_SECRET, (error, payload) => {
             if (error) 
-                response.status(403).json("Token is not valid!");
+                response.status(403).json("Invalid token!");
 
-            request.user = user;
+            request.user = payload;
             next();
         });
     } else {
-        return response.status(401).json("You are not authenticated!");
+        return response.status(401).json("Not authorized!");
     }
 }
 
@@ -22,7 +22,7 @@ const verifyTokenAndAuthorization = (request, response, next) => {
         if (request.user.id === request.params.id || request.user.isAdmin)
             next();
         else
-            response.status(403).json("You are not allowed to do that!");
+            response.status(403).json("Not authorized!");
     });
 };
 
@@ -31,7 +31,7 @@ const verifyTokenAndAdmin = (request, response, next) => {
         if (request.user.isAdmin)
             next();
         else
-            response.status(403).json("You are not allowed to do that!");
+            response.status(403).json("Not authorized!");
     });
 };
 
