@@ -39,8 +39,6 @@
     <td valign="top">
       <img src="https://user-images.githubusercontent.com/64171964/204113660-08b8cdd5-9e8f-436e-a39d-cc2c88485090.png" width="410" height="380">
     </td>
-  </tr>
-  <tr>
     <td valign="top">
       <img src="https://user-images.githubusercontent.com/64171964/204113685-04bd26b3-76fc-446a-b4c7-ecae8de674b5.png" width="410" height="380">
     </td>
@@ -53,8 +51,6 @@
     <td valign="top">
       <img src="https://user-images.githubusercontent.com/64171964/204113709-daa6d1c8-34bf-4631-b1c6-7bc994af1e5a.png" width="410" height="380">
     </td>
-  </tr>
-  <tr>
     <td valign="top">
       <img src="https://user-images.githubusercontent.com/64171964/204113723-c0a33159-04a1-4f84-859b-39e9f2d89e4a.png" width="410" height="380">
     </td>
