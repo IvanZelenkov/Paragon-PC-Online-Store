@@ -28,7 +28,7 @@
 <table>
   <tr>
     <td valign="top">
-      <img src="https://user-images.githubusercontent.com/64171964/204113632-d5725396-ab5f-462d-8d2a-b8b396ea7ef9.png" width="410" height="380">
+      <img src="https://user-images.githubusercontent.com/64171964/204113632-d5725396-ab5f-462d-8d2a-b8b396ea7ef9.png" width="1000" height="500">
     </td>
     <td valign="top">
       <img src="https://user-images.githubusercontent.com/64171964/204113642-3ffff363-6b6b-4cc1-8695-0379f529a572.png" width="410" height="380">
